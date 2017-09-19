@@ -10,6 +10,13 @@ namespace AipSystem
     {
         static void Main(string[] args)
         {
+            FileUtil fileUtil = new FileUtil();
+            string[] inputData = fileUtil.ReadInputCSV();
+            ImageProc imageProc = new ImageProc(inputData);
+            imageProc.Exec();
+            imageProc.ShowImage();
+
+            //Labeling.ExecLabeling();
         }
     }
 }
