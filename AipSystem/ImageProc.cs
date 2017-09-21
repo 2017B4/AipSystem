@@ -93,17 +93,21 @@ namespace AipSystem
 
             int count = countList.Count;
             int count_1 = countList_1.Count;
-            for (int c = 0; c < count; c++)
+            for (int c = 0; c < count-1; c++)
             {
                 for (int v = 0; v < count_1; v++)
                 {
                     //候補座標同士の差が絶対値10px以下ならば分裂候補として再確定
-                    if (Math.Abs(countList[c].x - countList_1[v].x) <= 10 && Math.Abs(countList[c].y - countList_1[v].y) <= 10 && countList[c].y != 0)
+                    if (Math.Abs(countList[c].x - countList_1[v].x) <= 20 && Math.Abs(countList[c].y - countList_1[v].y) <= 20 && countList[c].y != 0)
                     {
-                        Console.WriteLine("時間：{0}、Z軸：{1}、(x,y)=({2},{3})", countList[count - 1].t, countList[count - 1].z, countList[c].x, countList[c].y);
-                        //分裂候補の情報を保存する
-                        Candidates.Add(new CellState(countList[c].x, countList[c].y, countList[c].z, countList[c].w, countList[c].h, countList[c].t));
-                        Result[z][t].Rectangle(new Rect(countList[c].x, countList[c].y, countList[c].w, countList[c].h), new Scalar(0, 0, 255), 1);
+                        if(Math.Abs((countList[c].x + countList[c].w) - countList[c+1].x) <= 10 && Math.Abs((countList[c].y + countList[c].h) - countList[c+1].y) <= 10)
+                        {
+                            Console.WriteLine("時間：{0}、Z軸：{1}、(x,y)=({2},{3})", countList[count - 1].t, countList[count - 1].z, countList[c].x, countList[c].y);
+                            //分裂候補の情報を保存する
+                            Candidates.Add(new CellState(countList[c].x, countList[c].y, countList[c].z, countList[c].w, countList[c].h, countList[c].t));
+                            Result[z][t].Rectangle(new Rect(countList[c].x, countList[c].y, countList[c].w, countList[c].h), new Scalar(0, 0, 255), 1);
+                            Result[z][t].Rectangle(new Rect(countList[c+1].x, countList[c+1].y, countList[c+1].w, countList[c+1].h), new Scalar(0, 0, 255), 1);
+                        }
                     }
                 }
             }
@@ -121,9 +125,9 @@ namespace AipSystem
         {
             int tmp = 0;
             if (200 <= area && area <= 400) tmp++;  //面積
-            if (0.75 <= aspect && aspect <= 1.25) tmp++; //縦横比
+            if (0.1 <= aspect && aspect <= 1.2) tmp++; //縦横比
             //if (10 <= height && height <= 50 && 10 <= width && width <= 50) tmp++; //縦幅横幅
-            if (0.1 <= occupancy && occupancy <= 0.8) tmp++; //占有率
+            if (0.3 <= occupancy && occupancy <= 1.0) tmp++; //占有率
 
             if (tmp == 3) return true;
             return false;
