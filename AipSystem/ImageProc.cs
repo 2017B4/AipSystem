@@ -1,9 +1,6 @@
 ﻿using OpenCvSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AipSystem
 {
@@ -125,7 +122,7 @@ namespace AipSystem
         {
             int tmp = 0;
             if (200 <= area && area <= 400) tmp++;  //面積
-            if (0.1 <= aspect && aspect <= 1.2) tmp++; //縦横比
+            if (0.1 <= aspect && aspect <= 1.5) tmp++; //縦横比
             //if (10 <= height && height <= 50 && 10 <= width && width <= 50) tmp++; //縦幅横幅
             if (0.3 <= occupancy && occupancy <= 1.0) tmp++; //占有率
 

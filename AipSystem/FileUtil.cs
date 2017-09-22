@@ -20,7 +20,7 @@ namespace AipSystem
             string line;
             int index = 0;
             string[] ary = new string[3];
-            using (StreamReader file = new StreamReader(@"Pre_Data01/input.csv"))
+            using (StreamReader file = new StreamReader(@"Pre_Data03/input.csv"))
             {
                 while ((line = file.ReadLine()) != null)
                 {
