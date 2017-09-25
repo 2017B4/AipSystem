@@ -15,12 +15,25 @@ namespace AipSystem
         // T:時間総数　 Z:Z軸総数
         int T, Z;
 
+        public static void init()
+        {
+            File.Delete(@"Pre_Data01/output.csv");
+            using (FileStream hStream = File.Create(@"Pre_Data01/output.csv"))
+            {
+                // 作成時に返される FileStream を利用して閉じる
+                if (hStream != null)
+                {
+                    hStream.Close();
+                }
+            }
+        }
+
         public string[] ReadInputCSV()
         {
             string line;
             int index = 0;
             string[] ary = new string[3];
-            using (StreamReader file = new StreamReader(@"Pre_Data03/input.csv"))
+            using (StreamReader file = new StreamReader(@"Pre_Data01/input.csv"))
             {
                 while ((line = file.ReadLine()) != null)
                 {
@@ -60,6 +73,19 @@ namespace AipSystem
                 }
             }
             return list;
+        }
+
+        public static void OutputCSV(List<CellState> outputData)
+        {
+            if (outputData.Count < 20) return;
+            using (StreamWriter sw = new StreamWriter(@"Pre_Data01/output.csv", true))
+            {
+                sw.WriteLine();
+                for(int i=outputData.Count-1; i >= 0; i--)
+                {
+                    sw.WriteLine(outputData[i].x + " " + outputData[i].y + " " + outputData[i].z);
+                }
+            }
         }
     }
 }

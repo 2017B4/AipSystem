@@ -14,7 +14,8 @@ namespace AipSystem
         Mat[][] Result;
 
         //分裂候補情報を全て保存するリスト
-        List<CellState> Candidates = new List<CellState>();
+        //List<CellState> Candidates = new List<CellState>();
+        List<List<CellState>> Candidates = new List<List<CellState>>();
 
         public ImageProc(string[] ary)
         {
@@ -48,6 +49,7 @@ namespace AipSystem
                     Detect(bin, ref countList_1, t, z);
                 }
             }
+            NumberEvents();
         }
 
         public void Detect(Mat bin, ref List<CellState> countList_1, int t, int z)
@@ -90,6 +92,7 @@ namespace AipSystem
 
             int count = countList.Count;
             int count_1 = countList_1.Count;
+            List<CellState> CandidatesTmp = new List<CellState>();
             for (int c = 0; c < count-1; c++)
             {
                 for (int v = 0; v < count_1; v++)
@@ -101,7 +104,7 @@ namespace AipSystem
                         {
                             Console.WriteLine("時間：{0}、Z軸：{1}、(x,y)=({2},{3})", countList[count - 1].t, countList[count - 1].z, countList[c].x, countList[c].y);
                             //分裂候補の情報を保存する
-                            Candidates.Add(new CellState(countList[c].x, countList[c].y, countList[c].z, countList[c].w, countList[c].h, countList[c].t));
+                            CandidatesTmp.Add(new CellState(countList[c].x, countList[c].y, countList[c].z, countList[c].w, countList[c].h, countList[c].t));
                             Result[z][t].Rectangle(new Rect(countList[c].x, countList[c].y, countList[c].w, countList[c].h), new Scalar(0, 0, 255), 1);
                             Result[z][t].Rectangle(new Rect(countList[c+1].x, countList[c+1].y, countList[c+1].w, countList[c+1].h), new Scalar(0, 0, 255), 1);
                         }
@@ -115,6 +118,8 @@ namespace AipSystem
 
             //過去候補配列に現在フレームの分裂候補結果を保存
             countList_1 = countList;
+
+            Candidates.Add(CandidatesTmp);
         }
 
         // 閾値以内か確認
@@ -128,6 +133,44 @@ namespace AipSystem
 
             if (tmp == 3) return true;
             return false;
+        }
+
+        void NumberEvents()
+        {
+            int eventCount = 0;
+            List<int[]> removeIndex = new List<int[]>();
+            List<List<CellState>> CandidatesCP = new List<List<CellState>>(Candidates);
+            List<CellState> outputData = new List<CellState>();
+            for (int i=0; i < Candidates.Count; i++)
+            {
+                for(int j=0; j < Candidates[i].Count; j++)
+                {
+                    for(int k=i; k < CandidatesCP.Count; k++)
+                    {
+                        for(int l=0; l < CandidatesCP[k].Count; l++)
+                        {
+                            if(Math.Abs(Candidates[i][j].x - CandidatesCP[k][l].x) <= 50
+                                && Math.Abs(Candidates[i][j].y - CandidatesCP[k][l].y) <= 50)
+                            {
+                                int[] tmp = new int[] { k, l };
+                                removeIndex.Add(tmp);
+                                eventCount++;
+                            }
+                        }
+                    }
+                    for (int idx = removeIndex.Count - 1; idx >= 0; idx--)
+                    {
+                        int item1 = removeIndex[idx][0];
+                        int item2 = removeIndex[idx][1];
+                        outputData.Add(CandidatesCP[item1][item2]);
+                        CandidatesCP[item1].RemoveAt(item2);
+                    }
+                    FileUtil.OutputCSV(outputData);
+                    outputData.Clear();
+                    removeIndex.Clear();
+                }
+            }
+            Console.WriteLine("event : " + eventCount/2);
         }
 
         public void ShowImage()
