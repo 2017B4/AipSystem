@@ -140,7 +140,9 @@ namespace AipSystem
             int eventCount = 0;
             List<int[]> removeIndex = new List<int[]>();
             List<List<CellState>> CandidatesCP = new List<List<CellState>>(Candidates);
+            List<List<CellState>> tmpList = new List<List<CellState>>();
             List<CellState> outputData = new List<CellState>();
+
             for (int i=0; i < Candidates.Count; i++)
             {
                 for(int j=0; j < Candidates[i].Count; j++)
@@ -150,7 +152,7 @@ namespace AipSystem
                         for(int l=0; l < CandidatesCP[k].Count; l++)
                         {
                             if(Math.Abs(Candidates[i][j].x - CandidatesCP[k][l].x) <= 50
-                                && Math.Abs(Candidates[i][j].y - CandidatesCP[k][l].y) <= 50)
+                                && Math.Abs(Candidates[i][j].y - CandidatesCP[k][l].y) <= 5)
                             {
                                 int[] tmp = new int[] { k, l };
                                 removeIndex.Add(tmp);
@@ -165,11 +167,16 @@ namespace AipSystem
                         outputData.Add(CandidatesCP[item1][item2]);
                         CandidatesCP[item1].RemoveAt(item2);
                     }
-                    FileUtil.OutputCSV(outputData);
+                    if (outputData.Count > 10)
+                    {
+                        tmpList.Add(new List<CellState>(outputData));
+                    }
+                    //FileUtil.OutputCSV(outputData);
                     outputData.Clear();
                     removeIndex.Clear();
                 }
             }
+            FileUtil.OutputCSV2(tmpList);
             Console.WriteLine("event : " + eventCount/2);
         }
 

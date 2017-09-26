@@ -17,8 +17,8 @@ namespace AipSystem
 
         public static void init()
         {
-            File.Delete(@"Pre_Data01/output.csv");
-            using (FileStream hStream = File.Create(@"Pre_Data01/output.csv"))
+            File.Delete(@"output.csv");
+            using (FileStream hStream = File.Create(@"output.csv"))
             {
                 // 作成時に返される FileStream を利用して閉じる
                 if (hStream != null)
@@ -33,7 +33,7 @@ namespace AipSystem
             string line;
             int index = 0;
             string[] ary = new string[3];
-            using (StreamReader file = new StreamReader(@"Pre_Data01/input.csv"))
+            using (StreamReader file = new StreamReader(@"input.csv"))
             {
                 while ((line = file.ReadLine()) != null)
                 {
@@ -51,6 +51,11 @@ namespace AipSystem
             if (!int.TryParse(ary[2], out Z))
             {
                 Console.WriteLine("Z軸総数の取得に失敗しました");
+            }
+
+            using (StreamWriter sw = new StreamWriter(@"output.csv", true))
+            {
+                sw.WriteLine(T);
             }
 
             Console.WriteLine("データ名:" + fileName);
@@ -78,13 +83,56 @@ namespace AipSystem
         public static void OutputCSV(List<CellState> outputData)
         {
             if (outputData.Count < 20) return;
-            using (StreamWriter sw = new StreamWriter(@"Pre_Data01/output.csv", true))
+            using (StreamWriter sw = new StreamWriter(@"output.csv", true))
             {
                 sw.WriteLine();
                 for(int i=outputData.Count-1; i >= 0; i--)
                 {
                     sw.WriteLine(outputData[i].x + " " + outputData[i].y + " " + outputData[i].z);
                 }
+            }
+        }
+
+        public static void OutputCSV2(List<List<CellState>> outputData)
+        {
+            using (StreamWriter sw = new StreamWriter(@"output.csv", true))
+            {
+                sw.WriteLine(outputData.Count);
+                sw.WriteLine();
+                int start = 0, last = 0, t = 0;
+                outputData.ForEach(item =>
+                {
+                    int lastIdx = item.Count - 1;
+                    sw.WriteLine(item[lastIdx].x + " " + item[lastIdx].y + " " + item[lastIdx].z + " " + item[0].x + " " + item[0].y + " " + item[0].z);
+                    for(int i = 0; i < item.Count; i++)
+                    {
+                        if(i == 0)
+                        {
+                            t = item[i].t;
+                            continue;
+                        }
+                        if(t != item[i].t)
+                        {
+                            if(item[start].z < item[last].z)
+                            {
+                                sw.WriteLine(item[start].x + " " + item[start].y + " " + item[start].z + " " + item[last].x + " " + item[last].y + " " + item[last].z);
+                            } else
+                            {
+                                sw.WriteLine(item[last].x + " " + item[last].y + " " + item[last].z + " " + item[start].x + " " + item[start].y + " " + item[start].z);
+                            }
+                            
+                            t = item[i].t;
+                            start = i;
+                        } else
+                        {
+                            last = i;
+                        }
+                    }
+                    start = 0;
+                    last = 0;
+                    sw.WriteLine();
+                });
+                
             }
         }
     }
